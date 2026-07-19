@@ -67,6 +67,10 @@ void handle_client(int client_descriptor, size_t chunk_size) {
 
   if (header.type == CommandType::DOWNLOAD_REQUEST) {
     std::string path = recv_string(client_descriptor, header.len);
+    // Считываем желаемый размер чанка, который прислал клиент
+    uint64_t client_chunk_size = 0;
+    recv(client_descriptor, &client_chunk_size, sizeof(client_chunk_size),
+         MSG_WAITALL);
 
     std::cout << "[SERVER] Client requested download file by path: " << path
               << std::endl;
@@ -85,7 +89,7 @@ void handle_client(int client_descriptor, size_t chunk_size) {
 
     std::vector<char> data_buffer;
     int64_t read_bytes = 0;
-    while ((read_bytes = fh.read_chunk(data_buffer, chunk_size)) > 0) {
+    while ((read_bytes = fh.read_chunk(data_buffer, client_chunk_size)) > 0) {
       if (!send_packet(client_descriptor, CommandType::FILE_DATA,
                        data_buffer.data(), read_bytes)) {
         break;

@@ -108,6 +108,8 @@ int main(int argc, char* argv[]) {
     // Отправляем запрос DOWNLOAD_REQUEST и путь к удаленному файлу
     send_packet(client_descriptor, CommandType::DOWNLOAD_REQUEST,
                 config.src_path.data(), config.src_path.size());
+    uint64_t client_chunk = config.chunk_size;
+    send(client_descriptor, &client_chunk, sizeof(client_chunk), 0);
 
     // Ждем ответ от сервера (должен прийти FILE_INFO или ERROR_MSG)
     PacketHeader response_header;
